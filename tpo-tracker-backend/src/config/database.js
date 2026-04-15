@@ -3,32 +3,37 @@ import mongoose from 'mongoose';
 let cachedConnection = null;
 
 const connectDB = async () => {
-  if (cachedConnection) {
+  if (cachedConnection && cachedConnection.connection.readyState === 1) {
     return cachedConnection;
   }
 
   try {
     if (!process.env.MONGO_URI) {
-      throw new Error('MONGO_URI environment variable is not set');
+      console.error('❌ MONGO_URI not found. Add it to Vercel Environment Variables:');
+      console.error('   • Go to Vercel Dashboard → Select Project → Settings');
+      console.error('   • Click Environment Variables');
+      console.error('   • Add: MONGO_URI = mongodb+srv://...');
+      throw new Error('MONGO_URI is missing - cannot connect to MongoDB');
     }
 
+    console.log('🔄 Connecting to MongoDB...');
     cachedConnection = await mongoose.connect(process.env.MONGO_URI, {
-      // Serverless optimizations
-      maxPoolSize: 5,
-      minPoolSize: 1,
-      maxIdleTimeMS: 30000,
-      // Faster timeouts for serverless
-      connectTimeoutMS: 5000,      // Fail faster if network is down
-      socketTimeoutMS: 5000,       // Close idle sockets faster
-      serverSelectionTimeoutMS: 5000, // Quick server discovery
-      family: 4,                    // Use IPv4 only for faster DNS
+      maxPoolSize: 3,
+      minPoolSize: 0,
+      maxIdleTimeMS: 45000,
+      // Connection timeouts - increased for slow networks
+      connectTimeoutMS: 10000,
+      socketTimeoutMS: 10000,
+      serverSelectionTimeoutMS: 10000,
+      family: 4,
+      retryWrites: true,
     });
     
-    console.log('MongoDB connected:', cachedConnection.connection.host);
+    console.log('✅ MongoDB connected:', cachedConnection.connection.host);
     return cachedConnection;
   } catch (error) {
-    console.error('MongoDB connection error:', error.message);
-    cachedConnection = null; // Reset on error
+    console.error('❌ MongoDB connection failed:', error.message);
+    cachedConnection = null;
     throw error;
   }
 };
