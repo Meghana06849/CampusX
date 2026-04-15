@@ -1,8 +1,10 @@
 import mongoose from 'mongoose';
 
 let cachedConnection = null;
+let connectionAttempts = 0;
 
 const connectDB = async () => {
+  // Return cached connection if it's still alive
   if (cachedConnection && cachedConnection.connection.readyState === 1) {
     return cachedConnection;
   }
@@ -16,24 +18,44 @@ const connectDB = async () => {
       throw new Error('MONGO_URI is missing - cannot connect to MongoDB');
     }
 
-    console.log('🔄 Connecting to MongoDB...');
+    connectionAttempts++;
+    console.log(`🔄 Connecting to MongoDB (attempt ${connectionAttempts})...`);
+    
     cachedConnection = await mongoose.connect(process.env.MONGO_URI, {
+      // Serverless pooling for Vercel
       maxPoolSize: 3,
       minPoolSize: 0,
-      maxIdleTimeMS: 45000,
-      // Connection timeouts - increased for slow networks
-      connectTimeoutMS: 10000,
-      socketTimeoutMS: 10000,
-      serverSelectionTimeoutMS: 10000,
-      family: 4,
+      maxIdleTimeMS: 60000,
+      
+      // CRITICAL: Increased timeouts for cold starts and slow Atlas connections
+      connectTimeoutMS: 60000,          // 60 seconds for initial connection
+      socketTimeoutMS: 60000,            // 60 seconds for socket operations
+      serverSelectionTimeoutMS: 60000,   // 60 seconds for server discovery
+      
+      // Network settings
+      family: 4,                         // IPv4 only (faster DNS)
       retryWrites: true,
+      authSource: 'admin',
+      
+      // Connection stability
+      keepAlive: true,
+      keepAliveInitialDelay: 30000,
     });
     
-    console.log('✅ MongoDB connected:', cachedConnection.connection.host);
+    connectionAttempts = 0;
+    console.log('✅ MongoDB connected successfully:', cachedConnection.connection.host);
     return cachedConnection;
   } catch (error) {
     console.error('❌ MongoDB connection failed:', error.message);
     cachedConnection = null;
+    
+    // Retry once after a short delay
+    if (connectionAttempts < 2) {
+      console.log('⏳ Retrying connection in 2 seconds...');
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      return connectDB();
+    }
+    
     throw error;
   }
 };

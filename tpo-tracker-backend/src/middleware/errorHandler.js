@@ -2,6 +2,22 @@ export const errorHandler = (err, req, res, next) => {
   let message = err.message;
   let status = err.statusCode || 500;
 
+  // Handle MongoDB connection errors
+  if (err.message && err.message.includes('connect ECONNREFUSED')) {
+    message = 'Database connection failed. Please try again in a moment.';
+    status = 503;
+  }
+
+  if (err.message && err.message.includes('buffering timed out')) {
+    message = 'Database query timeout. Please try again.';
+    status = 504;
+  }
+
+  if (err.message && err.message.includes('MONGO_URI')) {
+    message = 'Server configuration error. MongoDB connection not configured.';
+    status = 500;
+  }
+
   // Handle Mongoose duplicate key error
   if (err.code === 11000) {
     message = `Duplicate field value '${Object.keys(err.keyValue)[0]}' entered`;
