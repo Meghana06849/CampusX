@@ -60,9 +60,9 @@ const studentSchema = new mongoose.Schema(
 );
 
 // Hash password before saving
-studentSchema.pre('save', async function (next) {
+studentSchema.pre('save', async function () {
   if (!this.isModified('password')) {
-    next();
+    return;
   }
 
   const salt = await bcryptjs.genSalt(10);

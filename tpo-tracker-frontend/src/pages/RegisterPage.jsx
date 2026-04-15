@@ -72,7 +72,12 @@ export function RegisterPage() {
       setStoredUser(student);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed');
+      const backendMessage = err.response?.data?.message;
+      const statusMessage = err.response
+        ? `Registration failed (${err.response.status})`
+        : 'Unable to reach the registration service';
+
+      setError(backendMessage || statusMessage);
     } finally {
       setIsLoading(false);
     }

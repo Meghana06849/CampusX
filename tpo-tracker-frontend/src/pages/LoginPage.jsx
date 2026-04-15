@@ -31,7 +31,12 @@ export function LoginPage() {
 
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
+      const backendMessage = err.response?.data?.message;
+      const statusMessage = err.response
+        ? `Login failed (${err.response.status})`
+        : 'Unable to reach the login service';
+
+      setError(backendMessage || statusMessage);
     } finally {
       setIsLoading(false);
     }

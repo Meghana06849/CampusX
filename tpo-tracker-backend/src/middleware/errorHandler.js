@@ -18,6 +18,16 @@ export const errorHandler = (err, req, res, next) => {
     status = 500;
   }
 
+  if (err.message && err.message.includes('JWT_SECRET is missing')) {
+    message = 'Server configuration error. JWT secret is not configured.';
+    status = 500;
+  }
+
+  if (err.message && err.message.includes('secretOrPrivateKey must have a value')) {
+    message = 'Server configuration error. JWT secret is not configured.';
+    status = 500;
+  }
+
   // Handle Mongoose duplicate key error
   if (err.code === 11000) {
     message = `Duplicate field value '${Object.keys(err.keyValue)[0]}' entered`;

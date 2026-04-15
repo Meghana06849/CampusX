@@ -37,9 +37,6 @@ const connectDB = async () => {
       retryWrites: true,
       authSource: 'admin',
       
-      // Connection stability
-      keepAlive: true,
-      keepAliveInitialDelay: 30000,
     });
     
     connectionAttempts = 0;
