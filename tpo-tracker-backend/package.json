@@ -1,0 +1,28 @@
+{
+  "name": "tpo-tracker-backend",
+  "version": "1.0.0",
+  "description": "TPO Student Tracker Backend - Real-time placement tracking system",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "seed": "node seed.js"
+  },
+  "keywords": ["tpo", "placement", "tracker", "real-time"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^8.0.0",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.0",
+    "socket.io": "^4.5.4",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express-async-errors": "^3.1.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

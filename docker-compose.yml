@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: tpo-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - tpo-network
+
+  backend:
+    build:
+      context: ./tpo-tracker-backend
+      dockerfile: Dockerfile
+    container_name: tpo-backend
+    ports:
+      - "5000:5000"
+    environment:
+      MONGO_URI: mongodb://admin:password123@mongodb:27017/tpo-tracker
+      JWT_SECRET: your_jwt_secret_key_here
+      PORT: 5000
+      NODE_ENV: development
+    depends_on:
+      - mongodb
+    networks:
+      - tpo-network
+    volumes:
+      - ./tpo-tracker-backend/src:/app/src
+
+  frontend:
+    build:
+      context: ./tpo-tracker-frontend
+      dockerfile: Dockerfile
+    container_name: tpo-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      VITE_API_URL: http://localhost:5000/api
+      VITE_SOCKET_URL: http://localhost:5000
+    depends_on:
+      - backend
+    networks:
+      - tpo-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  tpo-network:
+    driver: bridge
