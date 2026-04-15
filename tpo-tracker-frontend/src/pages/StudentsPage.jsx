@@ -24,9 +24,11 @@ export function StudentsPage() {
     // Connect socket and listen for new students
     socketService.connect();
     socketService.on('studentAdded', loadStudents);
+    const pollingTimer = setInterval(loadStudents, 15000);
 
     return () => {
       socketService.off('studentAdded', loadStudents);
+      clearInterval(pollingTimer);
     };
   }, []);
 

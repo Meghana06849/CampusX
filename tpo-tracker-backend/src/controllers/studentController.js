@@ -1,6 +1,6 @@
 import Student from '../models/Student.js';
 import Application from '../models/Application.js';
-import { io } from '../index.js';
+import { emitRealtimeEvent } from '../socket/realtime.js';
 
 export const getAllStudents = async (req, res, next) => {
   try {
@@ -131,7 +131,7 @@ export const updateStudent = async (req, res, next) => {
     }
 
     // Emit socket event
-    io.emit('studentUpdated', student);
+    emitRealtimeEvent('studentUpdated', student);
 
     res.status(200).json({
       success: true,
@@ -172,7 +172,7 @@ export const createStudent = async (req, res, next) => {
     });
 
     // Emit socket event
-    io.emit('studentAdded', {
+    emitRealtimeEvent('studentAdded', {
       id: student._id,
       name: student.name,
       email: student.email,

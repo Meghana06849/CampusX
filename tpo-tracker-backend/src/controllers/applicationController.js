@@ -1,6 +1,6 @@
 import Application from '../models/Application.js';
 import Student from '../models/Student.js';
-import { io } from '../index.js';
+import { emitRealtimeEvent } from '../socket/realtime.js';
 
 export const getAllApplications = async (req, res, next) => {
   try {
@@ -82,7 +82,7 @@ export const createApplication = async (req, res, next) => {
     );
 
     // Emit socket event
-    io.emit('applicationUpdated', {
+    emitRealtimeEvent('applicationUpdated', {
       type: 'created',
       application: populatedApp,
     });
@@ -119,7 +119,7 @@ export const updateApplication = async (req, res, next) => {
     }
 
     // Emit socket event
-    io.emit('applicationUpdated', {
+    emitRealtimeEvent('applicationUpdated', {
       type: 'updated',
       application,
     });
@@ -163,7 +163,7 @@ export const deleteApplication = async (req, res, next) => {
     }
 
     // Emit socket event
-    io.emit('applicationUpdated', {
+    emitRealtimeEvent('applicationUpdated', {
       type: 'deleted',
       applicationId: req.params.id,
     });

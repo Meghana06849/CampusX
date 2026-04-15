@@ -24,9 +24,11 @@ export function ApplicationsPage() {
     // Connect socket and listen for updates
     socketService.connect();
     socketService.on('applicationUpdated', loadApplications);
+    const pollingTimer = setInterval(loadApplications, 15000);
 
     return () => {
       socketService.off('applicationUpdated', loadApplications);
+      clearInterval(pollingTimer);
     };
   }, []);
 

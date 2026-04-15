@@ -1,7 +1,7 @@
 import JobPosting from '../models/JobPosting.js';
 import Application from '../models/Application.js';
 import Student from '../models/Student.js';
-import { io } from '../index.js';
+import { emitRealtimeEvent } from '../socket/realtime.js';
 
 const buildPostingWithStatus = async (jobPosting, studentId = null) => {
   const postingObject = jobPosting.toObject();
@@ -81,7 +81,7 @@ export const createJobPosting = async (req, res, next) => {
       'name email role'
     );
 
-    io.emit('jobPostingCreated', populatedPosting);
+    emitRealtimeEvent('jobPostingCreated', populatedPosting);
 
     res.status(201).json({
       success: true,
@@ -123,7 +123,7 @@ export const applyToJobPosting = async (req, res, next) => {
       appliedDate: new Date(),
     });
 
-    io.emit('applicationUpdated', {
+    emitRealtimeEvent('applicationUpdated', {
       type: 'applied',
       jobPostingId: id,
       studentId,
@@ -153,7 +153,7 @@ export const updateJobPosting = async (req, res, next) => {
       return res.status(404).json({ message: 'Job posting not found' });
     }
 
-    io.emit('jobPostingUpdated', jobPosting);
+    emitRealtimeEvent('jobPostingUpdated', jobPosting);
 
     res.status(200).json({
       success: true,
@@ -175,7 +175,7 @@ export const deleteJobPosting = async (req, res, next) => {
 
     await Application.deleteMany({ jobPostingId: req.params.id });
 
-    io.emit('jobPostingDeleted', { id: req.params.id });
+    emitRealtimeEvent('jobPostingDeleted', { id: req.params.id });
 
     res.status(200).json({
       success: true,

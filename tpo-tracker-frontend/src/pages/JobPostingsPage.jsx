@@ -41,12 +41,14 @@ export function JobPostingsPage() {
     socketService.on('jobPostingUpdated', loadJobPostings);
     socketService.on('jobPostingDeleted', loadJobPostings);
     socketService.on('applicationUpdated', loadJobPostings);
+    const pollingTimer = setInterval(loadJobPostings, 15000);
 
     return () => {
       socketService.off('jobPostingCreated', loadJobPostings);
       socketService.off('jobPostingUpdated', loadJobPostings);
       socketService.off('jobPostingDeleted', loadJobPostings);
       socketService.off('applicationUpdated', loadJobPostings);
+      clearInterval(pollingTimer);
     };
   }, []);
 

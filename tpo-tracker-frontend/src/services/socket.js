@@ -1,6 +1,7 @@
 import io from 'socket.io-client';
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+const SOCKET_ENABLED = import.meta.env.VITE_ENABLE_SOCKET === 'true';
 
 export class SocketService {
   constructor() {
@@ -8,6 +9,10 @@ export class SocketService {
   }
 
   connect() {
+    if (!SOCKET_ENABLED) {
+      return null;
+    }
+
     if (!this.socket) {
       this.socket = io(SOCKET_URL, {
         reconnection: true,

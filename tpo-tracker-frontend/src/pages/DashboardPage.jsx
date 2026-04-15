@@ -63,10 +63,12 @@ export function DashboardPage() {
     socketService.connect();
     socketService.on('studentAdded', loadDashboardData);
     socketService.on('applicationUpdated', loadDashboardData);
+    const pollingTimer = setInterval(loadDashboardData, 15000);
 
     return () => {
       socketService.off('studentAdded', loadDashboardData);
       socketService.off('applicationUpdated', loadDashboardData);
+      clearInterval(pollingTimer);
     };
   }, []);
 
