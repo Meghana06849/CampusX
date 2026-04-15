@@ -1,4 +1,7 @@
 {
+  "installCommand": "npm install --prefix tpo-tracker-backend && npm install --prefix tpo-tracker-frontend",
+  "buildCommand": "npm run build --prefix tpo-tracker-frontend",
+  "outputDirectory": "tpo-tracker-frontend/dist",
   "rewrites": [
     {
       "source": "/api/(.*)",
