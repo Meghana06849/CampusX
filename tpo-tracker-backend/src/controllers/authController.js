@@ -15,9 +15,10 @@ export const register = async (req, res, next) => {
   try {
     const { name, email, password, branch, year, cgpa, role } = req.body;
     const userRole = role || 'student';
+    const normalizedEmail = email?.trim().toLowerCase();
 
     // Validate input
-    if (!name || !email || !password) {
+    if (!name || !normalizedEmail || !password) {
       return res.status(400).json({
         message: 'Please provide all required fields',
       });
@@ -30,7 +31,7 @@ export const register = async (req, res, next) => {
     }
 
     // Check if user exists
-    const userExists = await Student.findOne({ email });
+    const userExists = await Student.findOne({ email: normalizedEmail });
     if (userExists) {
       return res.status(400).json({ message: 'User already exists' });
     }
@@ -38,7 +39,7 @@ export const register = async (req, res, next) => {
     // Create user
     const student = await Student.create({
       name,
-      email,
+      email: normalizedEmail,
       password,
       branch: userRole === 'admin' ? null : branch,
       year: userRole === 'admin' ? null : year,
@@ -68,16 +69,17 @@ export const register = async (req, res, next) => {
 export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
+    const normalizedEmail = email?.trim().toLowerCase();
 
     // Validate input
-    if (!email || !password) {
+    if (!normalizedEmail || !password) {
       return res.status(400).json({
         message: 'Please provide email and password',
       });
     }
 
     // Find student and select password
-    const student = await Student.findOne({ email }).select('+password');
+    const student = await Student.findOne({ email: normalizedEmail }).select('+password');
 
     if (!student) {
       return res.status(401).json({ message: 'Invalid credentials' });
