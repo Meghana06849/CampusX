@@ -31,12 +31,25 @@ export function LoginPage() {
 
       navigate('/dashboard');
     } catch (err) {
-      const backendMessage = err.response?.data?.message;
-      const statusMessage = err.response
-        ? `Login failed (${err.response.status})`
-        : 'Unable to reach the login service';
+      const status = err.response?.status;
+      const backendMessage = err.response?.data?.message?.trim();
+      const normalizedBackendMessage = backendMessage?.toLowerCase();
 
-      setError(backendMessage || statusMessage);
+      if (
+        status === 401 ||
+        normalizedBackendMessage === 'invalid credentials' ||
+        normalizedBackendMessage === 'login failed'
+      ) {
+        setError('Invalid email or password. If this is a new account, register first.');
+      } else if (status === 500) {
+        setError('Server error during login. Please try again in a minute.');
+      } else if (backendMessage) {
+        setError(`${backendMessage}${status ? ` (${status})` : ''}`);
+      } else if (status) {
+        setError(`Login failed (${status})`);
+      } else {
+        setError('Unable to reach the login service. Check internet and try again.');
+      }
     } finally {
       setIsLoading(false);
     }
