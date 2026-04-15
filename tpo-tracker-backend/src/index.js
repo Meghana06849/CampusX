@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import http from 'http';
 import { Server } from 'socket.io';
 
-import app from './app.js';
+import app, { dbConnectionPromise } from './app.js';
 import setupSocketIO from './socket/socketHandler.js';
 import { setRealtimeEmitter } from './socket/realtime.js';
 
@@ -25,10 +25,20 @@ export const io = new Server(server, {
 setupSocketIO(io);
 setRealtimeEmitter((eventName, payload) => io.emit(eventName, payload));
 
-// Start server
+// Start server only after MongoDB is ready so the first request does not hit buffering timeouts.
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+
+const startServer = async () => {
+  await dbConnectionPromise;
+
+  server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+};
+
+startServer().catch((err) => {
+  console.error('Failed to start server:', err);
+  process.exit(1);
 });
 
 // Handle unhandled promise rejections

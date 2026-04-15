@@ -21,7 +21,7 @@ const allowedOrigins = [
 ];
 
 // Reuse a cached connection in serverless/runtime invocations.
-connectDB();
+export const dbConnectionPromise = connectDB();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
