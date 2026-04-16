@@ -1,7 +1,7 @@
 {
-  "installCommand": "if [ -d tpo-tracker-backend ]; then cd tpo-tracker-backend && npm install && cd ..; fi; if [ -d tpo-tracker-frontend ]; then cd tpo-tracker-frontend; fi; npm install",
-  "buildCommand": "if [ -d tpo-tracker-frontend ]; then cd tpo-tracker-frontend && npm run build && cd .. && rm -rf dist && cp -R tpo-tracker-frontend/dist dist; else npm run build; fi",
-  "outputDirectory": "dist",
+  "installCommand": "npm --prefix tpo-tracker-backend install && npm --prefix tpo-tracker-frontend install",
+  "buildCommand": "npm --prefix tpo-tracker-frontend run build",
+  "outputDirectory": "tpo-tracker-frontend/dist",
   "rewrites": [
     {
       "source": "/api/(.*)",
