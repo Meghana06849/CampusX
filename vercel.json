@@ -1,6 +1,6 @@
 {
-  "installCommand": "npm install --prefix tpo-tracker-backend && npm install --prefix tpo-tracker-frontend",
-  "buildCommand": "npm run build --prefix tpo-tracker-frontend",
+  "installCommand": "cd tpo-tracker-backend && npm install && cd .. && cd tpo-tracker-frontend && npm install",
+  "buildCommand": "cd tpo-tracker-frontend && npm run build",
   "outputDirectory": "tpo-tracker-frontend/dist",
   "rewrites": [
     {
