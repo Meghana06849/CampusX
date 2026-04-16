@@ -2,6 +2,8 @@
 
 A production-ready full-stack real-time web application for tracking student placements and applications.
 
+[Live Site](https://campus-tpo-frontend.vercel.app/)
+
 ## Tech Stack
 
 ### Backend
