@@ -37,6 +37,14 @@ app.use('/api/students', studentRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/job-postings', jobPostingRoutes);
 
+app.get('/', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'TPO Tracker backend is running',
+    health: '/api/health',
+  });
+});
+
 app.get('/api/health', (req, res) => {
   res.status(200).json({
     success: true,
