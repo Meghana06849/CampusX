@@ -1,12 +1,11 @@
 import Student from '../models/Student.js';
 import jwt from 'jsonwebtoken';
+import { getJwtSecret } from '../utils/jwtSecret.js';
+
+const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 const generateToken = (id, role) => {
-  if (!process.env.JWT_SECRET) {
-    throw new Error('JWT_SECRET is missing - cannot issue authentication token');
-  }
-
-  return jwt.sign({ id, role }, process.env.JWT_SECRET, {
+  return jwt.sign({ id, role }, getJwtSecret(), {
     expiresIn: '7d',
   });
 };
@@ -31,7 +30,9 @@ export const register = async (req, res, next) => {
     }
 
     // Check if user exists
-    const userExists = await Student.findOne({ email: normalizedEmail });
+    const userExists = await Student.findOne({
+      email: { $regex: `^${escapeRegExp(normalizedEmail)}$`, $options: 'i' },
+    });
     if (userExists) {
       return res.status(400).json({ message: 'User already exists' });
     }
@@ -79,7 +80,9 @@ export const login = async (req, res, next) => {
     }
 
     // Find student and select password
-    const student = await Student.findOne({ email: normalizedEmail }).select('+password');
+    const student = await Student.findOne({
+      email: { $regex: `^${escapeRegExp(normalizedEmail)}$`, $options: 'i' },
+    }).select('+password');
 
     if (!student) {
       return res.status(401).json({ message: 'Invalid credentials' });
