@@ -41,6 +41,8 @@ export function LoginPage() {
         normalizedBackendMessage === 'login failed'
       ) {
         setError('Invalid email or password. If this is a new account, register first.');
+      } else if (status === 500 && backendMessage) {
+        setError(`${backendMessage} (500)`);
       } else if (status === 500) {
         setError('Server error during login. Please try again in a minute.');
       } else if (backendMessage) {

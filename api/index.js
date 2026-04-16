@@ -1,7 +1,16 @@
 module.exports = async (req, res) => {
-  const { default: app, dbConnectionPromise } = await import('../tpo-tracker-backend/src/app.js');
+  try {
+    const { default: app, dbConnectionPromise } = await import('../tpo-tracker-backend/src/app.js');
 
-  await dbConnectionPromise;
+    await dbConnectionPromise;
 
-  return app(req, res);
+    return app(req, res);
+  } catch (error) {
+    const message = error?.message || 'API initialization failed';
+
+    return res.status(500).json({
+      success: false,
+      message,
+    });
+  }
 };

@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 
 let cachedConnection = null;
 let connectionAttempts = 0;
+const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI;
 
 const connectDB = async () => {
   // Return cached connection if it's still alive
@@ -10,18 +11,18 @@ const connectDB = async () => {
   }
 
   try {
-    if (!process.env.MONGO_URI) {
-      console.error('❌ MONGO_URI not found. Add it to Vercel Environment Variables:');
+    if (!mongoUri) {
+      console.error('❌ MONGO_URI/MONGODB_URI not found. Add it to Vercel Environment Variables:');
       console.error('   • Go to Vercel Dashboard → Select Project → Settings');
       console.error('   • Click Environment Variables');
       console.error('   • Add: MONGO_URI = mongodb+srv://...');
-      throw new Error('MONGO_URI is missing - cannot connect to MongoDB');
+      throw new Error('MONGO_URI (or MONGODB_URI) is missing - cannot connect to MongoDB');
     }
 
     connectionAttempts++;
     console.log(`🔄 Connecting to MongoDB (attempt ${connectionAttempts})...`);
     
-    cachedConnection = await mongoose.connect(process.env.MONGO_URI, {
+    cachedConnection = await mongoose.connect(mongoUri, {
       // Serverless pooling for Vercel
       maxPoolSize: 3,
       minPoolSize: 0,
@@ -31,12 +32,7 @@ const connectDB = async () => {
       connectTimeoutMS: 60000,          // 60 seconds for initial connection
       socketTimeoutMS: 60000,            // 60 seconds for socket operations
       serverSelectionTimeoutMS: 60000,   // 60 seconds for server discovery
-      
-      // Network settings
-      family: 4,                         // IPv4 only (faster DNS)
-      retryWrites: true,
-      authSource: 'admin',
-      
+
     });
     
     connectionAttempts = 0;
